@@ -64,10 +64,10 @@ const createProductsTable = products => `
     <tbody>
         ${products
           .map(
-            product => `
+            ({ name, price }) => `
           <tr>
-            <td>${product.name}</td>
-            <td>${product.price}</td>
+            <td>${name}</td>
+            <td>${price}</td>
           </tr>
         `
           )
@@ -76,16 +76,15 @@ const createProductsTable = products => `
   </table>
 `;
 
-const createOrderElement = order => {
-  const id = order.id;
-  const user = order.user;
-  const email = order.contact.email;
-  const street = order.shippingAddress[0];
-  const city = order.shippingAddress[1];
-  const state = order.shippingAddress[2];
-  const discount =
-    order.discountAmount === undefined ? 0 : order.discountAmount;
-  const totalPrice = order.items.reduce((total, item) => total + item.price, 0);
+const createOrderElement = ({
+  id,
+  user,
+  contact: { email },
+  shippingAddress: [street, city, state],
+  discountAmount: discount = 0,
+  items
+}) => {
+  const totalPrice = items.reduce((total, { price }) => total + price, 0);
 
   return `
     <div class="order">
@@ -95,7 +94,7 @@ const createOrderElement = order => {
         ${createField("Email", email)}
         ${createField("Shipping address", `${city}, ${street}`)}
         ${createField("State", state)}
-        ${createProductsTable(order.items)}
+        ${createProductsTable(items)}
       </div>
       ${createField("Price", totalPrice)}
       ${createField("Discount", -discount)}
